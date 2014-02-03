@@ -160,7 +160,7 @@ class PrestoDialect(default.DefaultDialect):
             # call. SQLAlchemy doesn't handle this. Thus, we catch the unwrapped
             # presto.DatabaseError here.
             # Does the table exist?
-            msg = e.message.get('message') if isinstance(e.message, dict) else None
+            msg = e.args[0].get('message') if isinstance(e.args[0], dict) else None
             regex = r"^Table\ \'.*{}\'\ does\ not\ exist$".format(re.escape(table.name))
             if msg and re.match(regex, msg):
                 raise exc.NoSuchTableError(table.name)

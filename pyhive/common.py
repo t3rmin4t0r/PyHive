@@ -10,10 +10,8 @@ import collections
 import time
 
 
-class DBAPICursor(object):
+class DBAPICursor(metaclass=abc.ABCMeta):
     """Base class for some common DB-API logic"""
-    __metaclass__ = abc.ABCMeta
-
     _STATE_NONE = 0
     _STATE_RUNNING = 1
     _STATE_FINISHED = 2
@@ -105,7 +103,7 @@ class DBAPICursor(object):
         if size is None:
             size = self.arraysize
         result = []
-        for _ in xrange(size):
+        for _ in range(size):
             one = self.fetchone()
             if one is None:
                 break
@@ -162,7 +160,7 @@ class DBAPICursor(object):
         """
         return self._rownumber
 
-    def next(self):
+    def __next__(self):
         """Return the next row from the currently executing SQL statement using the same semantics
         as ``.fetchone()``. A StopIteration exception is raised when the result set is exhausted.
         """
@@ -194,7 +192,7 @@ class DBAPITypeObject(object):
 class ParamEscaper(object):
     def escape_args(self, parameters):
         if isinstance(parameters, dict):
-            return {k: self.escape_item(v) for k, v in parameters.iteritems()}
+            return {k: self.escape_item(v) for k, v in parameters.items()}
         elif isinstance(parameters, (list, tuple)):
             return tuple(self.escape_item(x) for x in parameters)
         else:
@@ -208,7 +206,7 @@ class ParamEscaper(object):
         # Newer SQLAlchemy checks dialect.supports_unicode_binds before encoding Unicode strings
         # as byte strings. The old version always encodes Unicode as byte strings, which breaks
         # string formatting here.
-        if isinstance(item, str):
+        if isinstance(item, bytes):
             item = item.decode('utf-8')
         # This is good enough when backslashes are literal, newlines are just followed, and the way
         # to escape a single quote is to put two single quotes.
@@ -216,9 +214,9 @@ class ParamEscaper(object):
         return "'{}'".format(item.replace("'", "''"))
 
     def escape_item(self, item):
-        if isinstance(item, (int, long, float)):
+        if isinstance(item, (int, float)):
             return self.escape_number(item)
-        elif isinstance(item, basestring):
+        elif isinstance(item, str):
             return self.escape_string(item)
         else:
             raise exc.ProgrammingError("Unsupported object {}".format(item))

@@ -252,7 +252,7 @@ for type_id in constants.PRIMITIVE_TYPES:
 
 def _unwrap_col_val(val):
     """Return the raw value from a TColumnValue instance."""
-    for _, _, attr, _, _ in filter(None, ttypes.TColumnValue.thrift_spec):
+    for _, _, attr, _, _ in [_ for _ in ttypes.TColumnValue.thrift_spec if _]:
         val_obj = getattr(val, attr)
         if val_obj:
             val = val_obj.value

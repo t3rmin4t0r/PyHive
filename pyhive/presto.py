@@ -14,7 +14,7 @@ from pyhive.exc import *
 import getpass
 import logging
 import requests
-import urlparse
+import urllib.parse
 
 
 # PEP 249 module globals
@@ -151,7 +151,7 @@ class Cursor(common.DBAPICursor):
         self._reset_state()
 
         self._state = self._STATE_RUNNING
-        url = urlparse.urlunparse((
+        url = urllib.parse.urlunparse((
             'http', '{}:{}'.format(self._host, self._port), '/v1/statement', None, None, None))
         _logger.debug("Query: %s", sql)
         _logger.debug("Headers: %s", headers)

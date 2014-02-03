@@ -23,8 +23,7 @@ def with_cursor(fn):
     return wrapped_fn
 
 
-class DBAPITestCase(unittest.TestCase):
-    __metaclass__ = abc.ABCMeta
+class DBAPITestCase(unittest.TestCase, metaclass=abc.ABCMeta):
     __test__ = False
 
     @abc.abstractmethod
@@ -44,13 +43,13 @@ class DBAPITestCase(unittest.TestCase):
         cursor.execute('SELECT * FROM one_row')
         self.assertEqual(cursor.fetchall(), [[1]])
         cursor.execute('SELECT a FROM many_rows ORDER BY a')
-        self.assertEqual(cursor.fetchall(), [[i] for i in xrange(10000)])
+        self.assertEqual(cursor.fetchall(), [[i] for i in range(10000)])
 
     @with_cursor
     def test_iterator(self, cursor):
         cursor.execute('SELECT * FROM one_row')
         self.assertEqual(list(cursor), [[1]])
-        self.assertRaises(StopIteration, cursor.next)
+        self.assertRaises(StopIteration, lambda: next(cursor))
 
     @with_cursor
     def test_description_initial(self, cursor):
@@ -82,7 +81,7 @@ class DBAPITestCase(unittest.TestCase):
         for length in 1, 2:
             cursor.executemany(
                 'SELECT %(x)d FROM one_row',
-                [{'x': i} for i in xrange(1, length + 1)]
+                [{'x': i} for i in range(1, length + 1)]
             )
             self.assertEqual(cursor.fetchall(), [[length]])
 

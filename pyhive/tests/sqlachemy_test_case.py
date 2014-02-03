@@ -28,8 +28,7 @@ def with_engine_connection(fn):
     return wrapped_fn
 
 
-class SqlAlchemyTestCase(unittest.TestCase):
-    __metaclass__ = abc.ABCMeta
+class SqlAlchemyTestCase(unittest.TestCase, metaclass=abc.ABCMeta):
     __test__ = False
 
     @with_engine_connection
