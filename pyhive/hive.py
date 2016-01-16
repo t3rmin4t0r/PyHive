@@ -181,6 +181,9 @@ class Cursor(common.DBAPICursor):
             columns = response.schema.columns
             self._description = []
             for col in columns:
+                precision = None
+                scale = None
+                varchar = None
                 primary_type_entry = col.typeDesc.types[0]
                 if primary_type_entry.primitiveEntry is None:
                     # All fancy stuff maps to string
@@ -188,9 +191,16 @@ class Cursor(common.DBAPICursor):
                 else:
                     type_id = primary_type_entry.primitiveEntry.type
                     type_code = ttypes.TTypeId._VALUES_TO_NAMES[type_id]
+                    typeQualifiers = primary_type_entry.primitiveEntry.typeQualifiers
+                    if typeQualifiers and typeQualifiers.qualifiers:
+                        if constants.PRECISION in typeQualifiers.qualifiers:
+                                precision = typeQualifiers.qualifiers[constants.PRECISION].i32Value
+                                scale = typeQualifiers.qualifiers[constants.SCALE].i32Value
+                        elif constants.CHARACTER_MAXIMUM_LENGTH in typeQualifiers.qualifiers:
+                                varchar = typeQualifiers.qualifiers[constants.CHARACTER_MAXIMUM_LENGTH].i32Value
                 self._description.append((
                     col.columnName.decode('utf-8'), type_code.decode('utf-8'),
-                    None, None, None, None, True
+                    varchar, None, precision, scale, True
                 ))
         return self._description
 
